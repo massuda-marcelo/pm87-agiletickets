@@ -98,8 +98,8 @@ public class EspetaculoTest {
 		assertTrue(sessoes.size() == 1);
 		
 		Sessao s = sessoes.get(0);
-		assertTrue(new LocalDate(s.getInicio()).compareTo(inicio) == 0);
-		assertTrue(new LocalTime(s.getInicio()).compareTo(horario) == 0);
+		assertTrue(new LocalDate(s.getInicio()).isEqual(inicio));
+		assertTrue(new LocalTime(s.getInicio()).isEqual(horario));
 	}
 	
 	@Test
@@ -120,8 +120,9 @@ public class EspetaculoTest {
 		
 		LocalDate date = inicio;
 		for (Sessao sessao : sessoes) {
-			assertTrue(new LocalDate(sessao.getInicio()).compareTo(date) == 0);
-			assertTrue(new LocalTime(sessao.getInicio()).compareTo(horario) == 0);
+			assertTrue(new LocalDate(sessao.getInicio()).isEqual(date));
+			assertTrue(new LocalDate(sessao.getInicio()).isEqual(date));
+			assertTrue(new LocalTime(sessao.getInicio()).isEqual(horario));
 			date = date.plusDays(1);
 		}
 	}
@@ -144,8 +145,8 @@ public class EspetaculoTest {
 		
 		LocalDate date = inicio;
 		for (Sessao sessao : sessoes) {
-			assertTrue(new LocalDate(sessao.getInicio()).compareTo(date) == 0);
-			assertTrue(new LocalTime(sessao.getInicio()).compareTo(horario) == 0);
+			assertTrue(new LocalDate(sessao.getInicio()).isEqual(date));
+			assertTrue(new LocalTime(sessao.getInicio()).isEqual(horario));
 			date = date.plusWeeks(1);
 		}
 	}
