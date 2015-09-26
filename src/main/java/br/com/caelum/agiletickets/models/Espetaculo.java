@@ -102,7 +102,7 @@ public class Espetaculo {
 		while (inicio.compareTo(fim) <= 0) {
 
 			Sessao sessao = new Sessao();
-			sessao.setInicio(inicio.toDateTime(horario));
+			sessao.setInicio(inicio.toDateTime(/*horario*/new LocalTime(12,0,0)));
 			sessoes.add(sessao);
 
 			switch (periodicidade) {
