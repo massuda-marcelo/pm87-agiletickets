@@ -19,7 +19,8 @@
 		<param-name>br.com.caelum.vraptor.encoding</param-name>
 		<param-value>UTF-8</param-value>
 	</context-param>
-	
+
+	<!-- http://www.guj.com.br/java/310620-vraptor-4- -tomcat-nao-funciona -->	
 	<listener>
 	    <listener-class>org.jboss.weld.environment.servlet.Listener</listener-class>
 	</listener>
