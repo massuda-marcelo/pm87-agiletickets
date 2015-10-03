@@ -7,41 +7,73 @@ import br.com.caelum.agiletickets.models.TipoDeEspetaculo;
 
 public class CalculadoraDePrecos {
 
-	public static BigDecimal calcula(Sessao sessao, Integer quantidade) {
-		BigDecimal preco;
+	private static class PoliticaDePreco {
+
+		TipoDeEspetaculo tipo;
+		Integer duracaoNormal;
+		double taxaDuracao;
+		double minimoLivre;
+		double taxaLotacao;
 		
-		if(sessao.getEspetaculo().getTipo().equals(TipoDeEspetaculo.CINEMA) || sessao.getEspetaculo().getTipo().equals(TipoDeEspetaculo.SHOW)) {
-			//quando estiver acabando os ingressos... 
-			if((sessao.getTotalIngressos() - sessao.getIngressosReservados()) / sessao.getTotalIngressos().doubleValue() <= 0.05) { 
-				preco = sessao.getPreco().add(sessao.getPreco().multiply(BigDecimal.valueOf(0.10)));
-			} else {
-				preco = sessao.getPreco();
-			}
-		} else if(sessao.getEspetaculo().getTipo().equals(TipoDeEspetaculo.BALLET)) {
-			if((sessao.getTotalIngressos() - sessao.getIngressosReservados()) / sessao.getTotalIngressos().doubleValue() <= 0.50) { 
-				preco = sessao.getPreco().add(sessao.getPreco().multiply(BigDecimal.valueOf(0.20)));
-			} else {
-				preco = sessao.getPreco();
-			}
+		public PoliticaDePreco(TipoDeEspetaculo tipo, Integer duracaoNormal, double taxaDuracao, double minimoLivre, double taxaLotacao) {
+			super();
+			this.tipo = tipo;
+			this.duracaoNormal = duracaoNormal;
+			this.taxaDuracao = taxaDuracao;
+			this.minimoLivre = minimoLivre;
+			this.taxaLotacao = taxaLotacao;
+		}
+
+		public TipoDeEspetaculo getTipo() {
+			return tipo;
+		}
+
+		private BigDecimal calculaTaxaLotacao(Sessao sessao) {
 			
-			if(sessao.getDuracaoEmMinutos() > 60){
-				preco = preco.add(sessao.getPreco().multiply(BigDecimal.valueOf(0.10)));
+			BigDecimal taxa = new BigDecimal(0);
+			
+			double livre = (sessao.getTotalIngressos() - sessao.getIngressosReservados()) / sessao.getTotalIngressos().doubleValue();
+			if (livre <= this.minimoLivre) { 
+				taxa = sessao.getPreco().multiply(BigDecimal.valueOf(this.taxaLotacao));
 			}
-		} else if(sessao.getEspetaculo().getTipo().equals(TipoDeEspetaculo.ORQUESTRA)) {
-			if((sessao.getTotalIngressos() - sessao.getIngressosReservados()) / sessao.getTotalIngressos().doubleValue() <= 0.50) { 
-				preco = sessao.getPreco().add(sessao.getPreco().multiply(BigDecimal.valueOf(0.20)));
-			} else {
-				preco = sessao.getPreco();
+			return taxa;
+		}
+		
+		private BigDecimal calculaTaxaDuracao(Sessao sessao) {
+			
+			BigDecimal taxa = new BigDecimal(0);
+			
+			if (sessao.getDuracaoEmMinutos() > this.duracaoNormal) {
+				taxa = sessao.getPreco().multiply(BigDecimal.valueOf(this.taxaDuracao));
 			}
+			return taxa;
+		}
 
-			if(sessao.getDuracaoEmMinutos() > 60){
-				preco = preco.add(sessao.getPreco().multiply(BigDecimal.valueOf(0.10)));
+		public BigDecimal calcula(Sessao sessao) {
+			
+			BigDecimal preco = sessao.getPreco();
+			preco.add(calculaTaxaLotacao(sessao));
+			preco.add(calculaTaxaDuracao(sessao));
+			return preco;
+		}
+	}
+	
+	static PoliticaDePreco[] politicas = {
+		//                                               duracaoNormal  taxaDuracao  minimoLivre  taxaLotacao
+		new PoliticaDePreco(TipoDeEspetaculo.CINEMA, Integer.MAX_VALUE,         0.0,         0.0,        0.10),
+		new PoliticaDePreco(TipoDeEspetaculo.SHOW,   Integer.MAX_VALUE,         0.0,         0.0,        0.10),
+		new PoliticaDePreco(TipoDeEspetaculo.BALLET,                60,        0.10,        0.50,        0.20),
+		new PoliticaDePreco(TipoDeEspetaculo.ORQUESTRA,             60,        0.10,        0.50,        0.20)
+	};
+	
+	public static BigDecimal calcula(Sessao sessao, Integer quantidade) {
+		BigDecimal preco = sessao.getPreco();
+		for (PoliticaDePreco politica : politicas) {
+			if (politica.getTipo().equals(sessao.getEspetaculo().getTipo())) {
+				preco = politica.calcula(sessao);
+				break;
 			}
-		}  else {
-			//nao aplica aumento para teatro (quem vai é pobretão)
-			preco = sessao.getPreco();
-		} 
-
+		}
 		return preco.multiply(BigDecimal.valueOf(quantidade));
 	}
 
