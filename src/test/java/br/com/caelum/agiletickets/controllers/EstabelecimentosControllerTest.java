@@ -1,6 +1,6 @@
 package br.com.caelum.agiletickets.controllers;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
@@ -80,5 +80,15 @@ public class EstabelecimentosControllerTest {
 		
 		assertEquals(emptyList, todos);
 		
+	}
+
+	@Test(expected=RuntimeException.class)
+	public void deveLancarException() {
+		DiretorioDeEstabelecimentos DAO = Mockito.mock(DiretorioDeEstabelecimentos.class);
+		Mockito.when(DAO.todos()).thenThrow(new RuntimeException());
+		
+		EstabelecimentosController sujeito = new EstabelecimentosController(null, null, DAO);
+		
+		sujeito.lista();
 	}
 }
